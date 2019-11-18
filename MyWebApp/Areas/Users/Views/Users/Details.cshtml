@@ -37,13 +37,16 @@
             @Html.DisplayFor(model => model.Age)
         </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.ProfileFileName)
-        </dt>
+        @if (!string.IsNullOrWhiteSpace(Model.ProfileFileName))
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.ProfileFileName)
+            </dt>
 
-        <dd>
-            <img src="@profileFilePath" height="80" width="80" />
-        </dd>
+            <dd>
+                <img src="@profileFilePath" height="80" width="80" />
+            </dd>
+        }
 
     </dl>
 </div>
