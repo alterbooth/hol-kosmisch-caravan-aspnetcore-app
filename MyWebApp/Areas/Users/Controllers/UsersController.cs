@@ -62,7 +62,7 @@ namespace MyWebApp.Areas.Users.Controllers
             }
 
             var file = Request.Form.Files["profile"];
-            var path = "temp";//HttpContext.Server.MapPath("~/temp/");
+            var path = "wwwroot/temp";
             if (file != null)
             {
                 if (!Directory.Exists(path))
