@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,9 +62,9 @@ namespace MyWebApp
             app.UseMvc(routes =>
             {
                 routes.MapAreaRoute(
-                    name: "admin",
-                    areaName: "Admin",
-                    template: "Admin/{controller=Home}/{action=Index}/{id?}");
+                    name: "users",
+                    areaName: "Users",
+                    template: "Users/{controller=Home}/{action=Index}/{id?}");
 
                 routes.MapRoute(
                     name: "default",
