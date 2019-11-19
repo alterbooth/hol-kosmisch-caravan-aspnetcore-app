@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Helpers;
 using MyWebApp.Models;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -60,23 +60,11 @@ namespace MyWebApp.Areas.Users.Controllers
             }
 
             var file = Request.Form.Files["profile"];
-            var path = "wwwroot/temp";
             if (file != null && file.Length > 0)
             {
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                using (var outputFile = System.IO.File.OpenWrite($@"{path}\{file.FileName}"))
-                using (var m = new MemoryStream())
-                {
-                    file.CopyTo(m);
-                    var fileBytes = m.ToArray();
-                    outputFile.Write(fileBytes, 0, fileBytes.Length);
-                }
-
-                user.ProfileFileName = file?.FileName;
+                var path = "wwwroot/temp";
+                FileHelper.Create(path, file);
+                user.ProfileFileName = file.FileName;
             }
 
             user.Id = Guid.NewGuid();
@@ -119,23 +107,11 @@ namespace MyWebApp.Areas.Users.Controllers
             }
 
             var file = Request.Form.Files["profile"];
-            var path = "wwwroot/temp";
             if (file != null && file.Length > 0 && file.FileName != user.ProfileFileName)
             {
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                using (var outputFile = System.IO.File.OpenWrite($@"{path}\{file.FileName}"))
-                using (var m = new MemoryStream())
-                {
-                    file.CopyTo(m);
-                    var fileBytes = m.ToArray();
-                    outputFile.Write(fileBytes, 0, fileBytes.Length);
-                }
-
-                user.ProfileFileName = file?.FileName;
+                var path = "wwwroot/temp";
+                FileHelper.Create(path, file);
+                user.ProfileFileName = file.FileName;
             }
 
             try
