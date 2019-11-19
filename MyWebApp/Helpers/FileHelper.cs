@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.WindowsAzure.Storage;
 using System;
-using System.IO;
 
 namespace MyWebApp.Helpers
 {
@@ -8,24 +8,16 @@ namespace MyWebApp.Helpers
     {
         public static void Create(string path, IFormFile file)
         {
-            Directory.CreateDirectory(path);
+            string connectionString = Environment.GetEnvironmentVariable("CONNECT_STR") ?? "UseDevelopmentStorage=true";
+            CloudStorageAccount.TryParse(connectionString, out var storageAccount);
 
-            var outputFile = File.Create($@"{path}\{file.FileName}");
-            var m = new MemoryStream();
-            try
-            {
-                file.CopyTo(m);
-                var fileBytes = m.ToArray();
-                outputFile.Write(fileBytes, 0, fileBytes.Length);
-            }
-            catch (Exception e)
-            {
-            }
-            finally
-            {
-                outputFile.Close();
-                m.Close();
-            }
+            var cloudBlobClient = storageAccount.CreateCloudBlobClient();
+            var containerName = Environment.GetEnvironmentVariable("BLOB_CONTAINER_NAME") ?? "mycontainer";
+            var cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+            cloudBlobContainer.CreateAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(file.FileName);
+            cloudBlockBlob.UploadFromStreamAsync(file.OpenReadStream()).ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }
