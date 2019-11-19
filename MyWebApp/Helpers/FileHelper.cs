@@ -7,7 +7,7 @@ namespace MyWebApp.Helpers
 {
     public static class FileHelper
     {
-        public static void Create(string path, IFormFile file)
+        public static void Create(IFormFile file)
         {
             string connectionString = Environment.GetEnvironmentVariable("CONNECT_STR") ?? "UseDevelopmentStorage=true";
             CloudStorageAccount.TryParse(connectionString, out var storageAccount);

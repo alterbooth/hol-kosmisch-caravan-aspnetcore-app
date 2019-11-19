@@ -62,8 +62,7 @@ namespace MyWebApp.Areas.Users.Controllers
             var file = Request.Form.Files["profile"];
             if (file != null && file.Length > 0)
             {
-                var path = "wwwroot/temp";
-                FileHelper.Create(path, file);
+                FileHelper.Create(file);
                 user.ProfileFileName = file.FileName;
             }
 
@@ -109,8 +108,7 @@ namespace MyWebApp.Areas.Users.Controllers
             var file = Request.Form.Files["profile"];
             if (file != null && file.Length > 0 && file.FileName != user.ProfileFileName)
             {
-                var path = "wwwroot/temp";
-                FileHelper.Create(path, file);
+                FileHelper.Create(file);
                 user.ProfileFileName = file.FileName;
             }
 
