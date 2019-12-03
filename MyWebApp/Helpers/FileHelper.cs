@@ -1,31 +1,27 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using System;
-using System.IO;
 
 namespace MyWebApp.Helpers
 {
     public static class FileHelper
     {
-        public static void Create(string path, IFormFile file)
+        public static void Create(IFormFile file)
         {
-            Directory.CreateDirectory(path);
+            string connectionString = Environment.GetEnvironmentVariable("CONNECT_STR") ?? "UseDevelopmentStorage=true";
+            CloudStorageAccount.TryParse(connectionString, out var storageAccount);
 
-            var outputFile = File.Create($@"{path}\{file.FileName}");
-            var m = new MemoryStream();
-            try
-            {
-                file.CopyTo(m);
-                var fileBytes = m.ToArray();
-                outputFile.Write(fileBytes, 0, fileBytes.Length);
-            }
-            catch (Exception e)
-            {
-            }
-            finally
-            {
-                outputFile.Close();
-                m.Close();
-            }
+            var cloudBlobClient = storageAccount.CreateCloudBlobClient();
+            var containerName = Environment.GetEnvironmentVariable("BLOB_CONTAINER_NAME") ?? "mycontainer";
+            var cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+            cloudBlobContainer.CreateAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            var permissions = cloudBlobContainer.GetPermissionsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            permissions.PublicAccess = BlobContainerPublicAccessType.Blob;
+            cloudBlobContainer.SetPermissionsAsync(permissions).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(file.FileName);
+            cloudBlockBlob.UploadFromStreamAsync(file.OpenReadStream()).ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }

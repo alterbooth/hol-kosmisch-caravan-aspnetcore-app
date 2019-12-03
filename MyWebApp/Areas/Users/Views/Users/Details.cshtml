@@ -1,9 +1,11 @@
 ﻿@model MyWebApp.Models.User
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var profileFilePath = $@"/temp/{Model.ProfileFileName}";
+    var profileFilePath = $"{Configuration.GetValue<string>("BLOB_URL")}/{Configuration.GetValue<string>("BLOB_CONTAINER_NAME")}/{Model.ProfileFileName}";
 }
 
 <h2>Details</h2>
