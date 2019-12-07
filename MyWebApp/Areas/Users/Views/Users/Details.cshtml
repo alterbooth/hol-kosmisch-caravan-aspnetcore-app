@@ -5,7 +5,6 @@
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var profileFilePath = $"{Configuration.GetValue<string>("BLOB_URL")}/{Configuration.GetValue<string>("BLOB_CONTAINER_NAME")}/{Model.ProfileFileName}";
 }
 
 <h2>Details</h2>
@@ -45,7 +44,7 @@
             </dt>
 
             <dd>
-                <img src="@profileFilePath" height="80" width="80" />
+                <img src="@Model.ProfileFileName" height="80" width="80" />
             </dd>
         }
 

@@ -2,26 +2,27 @@
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
+using System.Threading.Tasks;
 
 namespace MyWebApp.Helpers
 {
     public static class FileHelper
     {
-        public static void Create(IFormFile file)
+        public static async Task Create(IFormFile file)
         {
-            string connectionString = Environment.GetEnvironmentVariable("CONNECT_STR") ?? "UseDevelopmentStorage=true";
-            CloudStorageAccount.TryParse(connectionString, out var storageAccount);
+            string connectionString = Environment.GetEnvironmentVariable("StorageConnectionString");
+            CloudStorageAccount.TryParse(connectionString, out CloudStorageAccount storageAccount);
 
-            var cloudBlobClient = storageAccount.CreateCloudBlobClient();
-            var containerName = Environment.GetEnvironmentVariable("BLOB_CONTAINER_NAME") ?? "mycontainer";
-            var cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
-            cloudBlobContainer.CreateAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-            var permissions = cloudBlobContainer.GetPermissionsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("mycontainer");
+            await cloudBlobContainer.CreateAsync();
+
+            BlobContainerPermissions permissions = await cloudBlobContainer.GetPermissionsAsync();
             permissions.PublicAccess = BlobContainerPublicAccessType.Blob;
-            cloudBlobContainer.SetPermissionsAsync(permissions).ConfigureAwait(false).GetAwaiter().GetResult();
+            await cloudBlobContainer.SetPermissionsAsync(permissions);
 
-            var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(file.FileName);
-            cloudBlockBlob.UploadFromStreamAsync(file.OpenReadStream()).ConfigureAwait(false).GetAwaiter().GetResult();
+            CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(file.FileName);
+            await cloudBlockBlob.UploadFromStreamAsync(file.OpenReadStream());
         }
     }
 }
