@@ -49,6 +49,19 @@
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS",
+        "Premium_LRS"
+      ],
+      "metadata": {
+        "description": "Storage Account type"
+      }
     }
   },
   "variables": {
@@ -62,8 +75,8 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
       "location": "[parameters('location')]",
       "apiVersion": "2019-04-01",
       "sku": {
