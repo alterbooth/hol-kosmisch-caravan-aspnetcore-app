@@ -70,7 +70,7 @@
     "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
     "databaseName": "sampledb",
     "databaseBacpacUrl": "https://kosmischcaravan.blob.core.windows.net/dbbackup/sql-database-sample-core.bacpac",
-    "storageAccountName": "mywebapp",
+    "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
     "storageAccountId": "[concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
   },
   "resources": [
