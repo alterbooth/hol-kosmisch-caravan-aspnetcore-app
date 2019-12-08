@@ -63,7 +63,7 @@ namespace MyWebApp
             app.UseMvc(routes =>
             {
                 routes.MapAreaRoute(
-                    name: "default",
+                    name: "adminArea",
                     areaName: "Admin",
                     template: "Admin/{controller=Default}/{action=Index}/{id?}");
 

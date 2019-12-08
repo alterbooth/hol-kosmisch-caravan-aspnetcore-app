@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using MyWebApp.Models;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,20 +15,22 @@ namespace MyWebApp.Controllers
     public class UsersController : Controller
     {
         private readonly MyContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(MyContext context)
+        public UsersController(MyContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
-        // GET: Users/Users
+        // GET: Users
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
         }
 
-        // GET: Users/Users/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        // GET: Users/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -40,15 +47,13 @@ namespace MyWebApp.Controllers
             return View(user);
         }
 
-        // GET: Users/Users/Create
+        // GET: Users/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Users/Users/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Age,ProfileFileName")] User user)
@@ -58,21 +63,19 @@ namespace MyWebApp.Controllers
                 return View(user);
             }
 
-            //var file = Request.Form.Files["profile"];
-            //if (file != null && file.Length > 0)
-            //{
-            //    await FileHelper.Create(file);
-            //    user.ProfileFileName = file.FileName;
-            //}
+            IFormFile file = Request.Form.Files["profile"];
+            if (file != null && file.Length > 0)
+            {
+                user.ProfileFileName = await SaveFile(file);
+            }
 
-            user.Id = Guid.NewGuid();
             _context.Add(user);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Users/Users/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        // GET: Users/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -87,12 +90,10 @@ namespace MyWebApp.Controllers
             return View(user);
         }
 
-        // POST: Users/Users/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Age,ProfileFileName")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Age,ProfileFileName")] User user)
         {
             if (id != user.Id)
             {
@@ -104,12 +105,11 @@ namespace MyWebApp.Controllers
                 return View(user);
             }
 
-            //var file = Request.Form.Files["profile"];
-            //if (file != null && file.Length > 0 && file.FileName != user.ProfileFileName)
-            //{
-            //    await FileHelper.Create(file);
-            //    user.ProfileFileName = file.FileName;
-            //}
+            IFormFile file = Request.Form.Files["profile"];
+            if (file != null && file.Length > 0)
+            {
+                user.ProfileFileName = await SaveFile(file);
+            }
 
             try
             {
@@ -130,9 +130,29 @@ namespace MyWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(Guid id)
+        private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.Id == id);
+        }
+
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            string connectionString = _configuration.GetConnectionString("StorageConnectionString");
+            CloudStorageAccount.TryParse(connectionString, out CloudStorageAccount storageAccount);
+
+            CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference("mycontainer");
+            await cloudBlobContainer.CreateIfNotExistsAsync();
+
+            BlobContainerPermissions permissions = await cloudBlobContainer.GetPermissionsAsync();
+            permissions.PublicAccess = BlobContainerPublicAccessType.Blob;
+            await cloudBlobContainer.SetPermissionsAsync(permissions);
+
+            string fileName = Path.GetFileName(file.FileName);
+            CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(fileName);
+            await cloudBlockBlob.UploadFromStreamAsync(file.OpenReadStream());
+
+            return cloudBlockBlob.Uri.ToString();
         }
     }
 }

@@ -39,7 +39,7 @@
             @Html.DisplayFor(modelItem => item.Age)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.ProfileFileName)
+            <img src="@item.ProfileFileName" height="80" width="80" />
         </td>
         <td>
             <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
