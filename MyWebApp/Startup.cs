@@ -28,8 +28,15 @@ namespace MyWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddDistributedSqlServerCache(options =>
+            {
+                options.ConnectionString = Configuration.GetConnectionString("DatabaseConnectionString");
+                options.SchemaName = "dbo";
+                options.TableName = "Cache";
+            });
+
             services.AddDbContext<MyContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("MyContext")));
+                options.UseSqlServer(Configuration.GetConnectionString("DatabaseConnectionString")));
 
             services.AddMvc(options =>
             {

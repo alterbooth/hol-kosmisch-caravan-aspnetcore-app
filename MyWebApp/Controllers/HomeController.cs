@@ -1,43 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using MyWebApp.Models;
 
 namespace MyWebApp.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IDistributedCache cache;
+
+        public HomeController(IDistributedCache cache)
+        {
+            this.cache = cache;
+        }
+
         public IActionResult Index()
         {
-            return View();
+            string message = cache.GetString("message");
+            return View(new MyForm { Message = message });
         }
 
-        public IActionResult About()
+        [HttpPost]
+        public IActionResult Index(MyForm item)
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            cache.SetString("message", item.Message);
+            return RedirectToAction("Index");
         }
     }
 }

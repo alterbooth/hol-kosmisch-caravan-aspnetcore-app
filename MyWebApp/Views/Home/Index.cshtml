@@ -1,5 +1,19 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model MyWebApp.Models.MyForm
+@{
+    ViewBag.Title = "Home Page";
 }
 
-<h2>MyWebApp</h2>
+<h2>MyWebApp (ASP.NET Core版)</h2>
+<p>あなたへのメッセージ：@Model.Message</p>
+<hr />
+<form asp-controller="Home" asp-action="Index" method="post">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div class="form-group">
+        <label asp-for="Message" class="control-label col-md-2"></label>
+        <div class="col-md-10">
+            <input asp-for="Message" class="form-control" />
+            <span asp-validation-for="Message" class="text-danger"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">送信</button>
+</form>

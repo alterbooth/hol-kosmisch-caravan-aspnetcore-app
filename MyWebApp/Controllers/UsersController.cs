@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyWebApp.Helpers;
 using MyWebApp.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MyWebApp.Areas.Users.Controllers
+namespace MyWebApp.Controllers
 {
     public class UsersController : Controller
     {
@@ -59,12 +58,12 @@ namespace MyWebApp.Areas.Users.Controllers
                 return View(user);
             }
 
-            var file = Request.Form.Files["profile"];
-            if (file != null && file.Length > 0)
-            {
-                await FileHelper.Create(file);
-                user.ProfileFileName = file.FileName;
-            }
+            //var file = Request.Form.Files["profile"];
+            //if (file != null && file.Length > 0)
+            //{
+            //    await FileHelper.Create(file);
+            //    user.ProfileFileName = file.FileName;
+            //}
 
             user.Id = Guid.NewGuid();
             _context.Add(user);
@@ -105,12 +104,12 @@ namespace MyWebApp.Areas.Users.Controllers
                 return View(user);
             }
 
-            var file = Request.Form.Files["profile"];
-            if (file != null && file.Length > 0 && file.FileName != user.ProfileFileName)
-            {
-                await FileHelper.Create(file);
-                user.ProfileFileName = file.FileName;
-            }
+            //var file = Request.Form.Files["profile"];
+            //if (file != null && file.Length > 0 && file.FileName != user.ProfileFileName)
+            //{
+            //    await FileHelper.Create(file);
+            //    user.ProfileFileName = file.FileName;
+            //}
 
             try
             {
