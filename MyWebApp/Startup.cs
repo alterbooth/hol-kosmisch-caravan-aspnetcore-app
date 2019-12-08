@@ -38,10 +38,9 @@ namespace MyWebApp
             services.AddDbContext<MyContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DatabaseConnectionString")));
 
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(new Filters.LogFilter());
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services
+                .AddMvc(options => options.Filters.Add(new MyWebApp.Filters.LogFilter()))
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
