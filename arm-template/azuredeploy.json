@@ -49,19 +49,6 @@
       "metadata": {
         "description": "Location for all resources."
       }
-    },
-    "storageAccountType": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "allowedValues": [
-        "Standard_LRS",
-        "Standard_GRS",
-        "Standard_ZRS",
-        "Premium_LRS"
-      ],
-      "metadata": {
-        "description": "Storage Account type"
-      }
     }
   },
   "variables": {
@@ -69,22 +56,9 @@
     "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]",
     "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
     "databaseName": "sampledb",
-    "databaseBacpacUrl": "https://kosmischcaravan.blob.core.windows.net/dbbackup/sql-database-sample-core.bacpac",
-    "storageAccountName": "[concat('storage', uniqueString(resourceGroup().id))]",
-    "storageAccountId": "[concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+    "databaseBacpacUrl": "https://kosmischcaravan.blob.core.windows.net/dbbackup/sql-database-sample-core.bacpac"
   },
   "resources": [
-    {
-      "name": "[variables('storageAccountName')]",
-      "type": "Microsoft.Storage/storageAccounts",
-      "location": "[parameters('location')]",
-      "apiVersion": "2019-04-01",
-      "sku": {
-        "name": "[parameters('storageAccountType')]"
-      },
-      "kind": "StorageV2",
-      "properties": {}
-    },
     {
       "name": "[variables('sqlserverName')]",
       "type": "Microsoft.Sql/servers",
@@ -195,10 +169,6 @@
             "DatabaseConnectionString": {
               "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
               "type": "SQLAzure"
-            },
-            "StorageConnectionString": {
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(variables('storageAccountId'),'2015-05-01-preview').key1))]",
-              "type": "Custom"
             }
           }
         }
