@@ -16,14 +16,17 @@ namespace MyWebApp.Controllers
 
         public IActionResult Index()
         {
-            string message = cache.GetString("message");
-            return View(new MyForm { Message = message });
+            ViewBag.Message = cache.GetString("message");
+            return View();
         }
 
         [HttpPost]
         public IActionResult Index(MyForm item)
         {
-            cache.SetString("message", item.Message);
+            if (!string.IsNullOrWhiteSpace(item?.Message))
+            {
+                cache.SetString("message", item.Message);
+            }
             return RedirectToAction("Index");
         }
     }
